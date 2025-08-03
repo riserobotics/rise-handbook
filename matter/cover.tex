@@ -1,10 +1,24 @@
 % matter/cover.tex
 % Titelseite mit EINEM Logo und festem Hintergrund.
-% Voraussetzungen (in main.tex geladen): graphicx, xcolor, geometry, eso-pic, ifthen, setspace
+% Voraussetzungen (in main.tex geladen): graphicx, xcolor, geometry, eso-pic, ifthen, setspace, etoolbox
 
 % -- Einstellungen (bei Bedarf hier anpassen) --
 \newcommand{\CoverBackgroundPath}{figures/theme/cover-bg.pdf} % Hintergrund-PDF
-\newcommand{\CoverTextColor}{white}                           % Textfarbe über dem Hintergrund (z. B. white/black)
+\newcommand{\CoverTextColor}{white}                           % Textfarbe über dem Hintergrund
+
+% Logo-Parameter (Abstände und Maximalbreite)
+\newcommand{\CoverLogoTopSkip}{1.2cm}    % oberer Abstand
+\newcommand{\CoverLogoLeftSkip}{-13.5mm} % ~10px weiter nach links (≈ -7.5pt)
+
+\newlength{\CoverLogoMaxWidth}
+\setlength{\CoverLogoMaxWidth}{0.40\textwidth} % max. 40% der Textbreite (≈ doppelt)
+
+
+% Fallback: \coverfont nutzt Sans-Serif. (In main.tex gewünschte Sans-Schrift setzen.)
+\providecommand{\coverfont}{\sffamily}
+
+% Hilfsbefehl: druckt ein Feld nur, wenn nicht leer
+\providecommand{\printfield}[1]{\ifdefempty{#1}{}{{\noindent\fontsize{10}{12}\selectfont #1\par}}}
 
 % -- Hintergrund einbinden (nur Titelseite) --
 \makeatletter
@@ -18,19 +32,22 @@
 % -- Titelseite --
 \newgeometry{margin=1.98cm, top=2.15cm, bottom=1.47cm}
 \begin{titlepage}
-  \latofont
+  \coverfont
   \color{\CoverTextColor}
 
-  \vspace*{\baselineskip}
+  % Logo oben links, mit Abstand nach oben/links; max. 20% Textbreite
+  \vspace*{\CoverLogoTopSkip}
+  \noindent\hspace*{\CoverLogoLeftSkip}%
+  \begingroup
+    \IfFileExists{figures/theme/logotypes/rise-logo.jpg}{%
+      \includegraphics[width=\CoverLogoMaxWidth,keepaspectratio]{figures/theme/logotypes/rise-logo.jpg}%
+    }{%
+      {\bfseries\fontsize{28}{34}\selectfont RISE Handbuch}%
+    }%
+  \endgroup
 
-  % EIN EINZIGES LOGO (keine Auswahl-Logik)
-  \begin{figure}\centering
-    \IfFileExists{figures/theme/rise-logo.pdf}{%
-      \includegraphics[width=0.45\linewidth]{figures/theme/rise-logo.pdf}%
-    }{\textbf{RISE}}%
-  \end{figure}
-
-  \vspace{5.5\baselineskip}
+  % vertikaler Abstand nach dem Logo
+  \vspace{4.5\baselineskip}
 
   % Titel
   \noindent\makebox[\textwidth][l]{%
@@ -62,13 +79,11 @@
 
   \vfill
 
-  % Institution/Felder
-  {\noindent\fontsize{10}{12}\selectfont \GetSchool\par}
-  {\noindent\fontsize{10}{12}\selectfont \GetDepartment\par}
-  {\noindent\fontsize{10}{12}\selectfont \GetDegree\par}
-  \ifdefined\GetCourse
-    {\noindent\fontsize{10}{12}\selectfont \GetCourse\par}
-  \fi
+  % Institution/Felder (nur drucken, wenn nicht leer)
+  \printfield{\GetSchool}
+  \printfield{\GetDepartment}
+  \printfield{\GetDegree}
+  \ifdefempty{\GetCourse}{}{ \printfield{\GetCourse} }
 
   % Dokumentstatus
   \ifthenelse{\equal{\DocStageOption}{working}}{%
@@ -85,4 +100,3 @@
   \vspace{68pt}
 \end{titlepage}
 \restoregeometry
-\MediaOptionLogicBlank
