@@ -1,17 +1,18 @@
-# .github/workflows/latex-ci.yml
-name: LaTeX CI
+# .github/workflows/latex-release.yml
+name: LaTeX Release
 
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
   workflow_dispatch:
+
+# Für Release-Schreiben notwendig
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -19,13 +20,21 @@ jobs:
       - name: Compile LaTeX
         uses: xu-cheng/latex-action@4.0.0
         with:
-          # Ersetze 'main.tex' bei Bedarf durch deinen Haupteinstieg.
           root_file: main.tex
-          # Optional: Pakete cachen, beschleunigt Folgeläufe.
           cache: true
 
-      - name: Upload PDF artifact
-        uses: actions/upload-artifact@v4
+      # Optional: Ausgabe umbenennen
+      - name: Rename PDF
+        run: mv main.pdf "RISE-Handbuch.pdf"
+
+      # Release mit festem Tag "stable" erstellen/aktualisieren und PDF anhängen
+      - name: Publish Release (stable)
+        uses: ncipollo/release-action@v1
         with:
-          name: pdf
-          path: main.pdf
+          tag: stable
+          name: Stable build
+          body: "Automatisch generiertes PDF aus main branch."
+          allowUpdates: true           # Release mit gleichem Tag aktualisieren
+          replacesArtifacts: true      # vorhandene Assets ersetzen
+          artifacts: "RISE-Handbuch.pdf"
+          token: ${{ secrets.GITHUB_TOKEN }}
