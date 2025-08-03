@@ -8,6 +8,11 @@
 \usepackage{ifthen}    % \ifthenelse
 \usepackage{setspace}  % \setstretch
 \usepackage{etoolbox}  % <— hinzugefügt: für \ifdef, \ifdefempty etc.
+\usepackage{epigraph}
+
+
+\setlength{\epigraphwidth}{0.8\textwidth}
+\setlength{\epigraphrule}{0pt
 
 % Fallbacks
 \newcommand{\latofont}{}
@@ -34,7 +39,9 @@
 
 \input{matter/cover}
 \input{chapters/einfuehrung}
-\input{chapters/ablauf}
 \input{chapters/rise-a-to-z}
+\input{chapters/ablauf}
+\input{chapters/bewertungsgrundlage}
+
 
 \end{document}
