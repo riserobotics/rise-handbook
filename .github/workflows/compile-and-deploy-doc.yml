@@ -1,0 +1,31 @@
+# .github/workflows/latex-ci.yml
+name: LaTeX CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compile LaTeX
+        uses: xu-cheng/latex-action@4.0.0
+        with:
+          # Ersetze 'main.tex' bei Bedarf durch deinen Haupteinstieg.
+          root_file: main.tex
+          # Optional: Pakete cachen, beschleunigt Folgeläufe.
+          cache: true
+
+      - name: Upload PDF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pdf
+          path: main.pdf
