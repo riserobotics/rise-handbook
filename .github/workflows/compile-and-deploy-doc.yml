@@ -6,9 +6,8 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
-# Für Release-Schreiben notwendig
 permissions:
-  contents: write
+  contents: write   # notwendig, um Releases/Tags zu schreiben
 
 jobs:
   build:
@@ -16,6 +15,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # volle Historie für git log / Tags
 
       - name: Compile LaTeX
         uses: xu-cheng/latex-action@4.0.0
@@ -23,18 +24,54 @@ jobs:
           root_file: main.tex
           cache: true
 
-      # Optional: Ausgabe umbenennen
       - name: Rename PDF
         run: mv main.pdf "RISE-Handbuch.pdf"
+
+      # Ermittele den Commit-Bereich seit dem letzten Stable-Release (Tag "stable")
+      - name: Determine commit range since last stable release
+        id: range
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --tags --force
+          if git rev-parse -q --verify refs/tags/stable >/dev/null; then
+            PREV_SHA="$(git rev-list -n 1 stable)"
+            echo "prev_sha=$PREV_SHA" >> "$GITHUB_OUTPUT"
+            echo "range=${PREV_SHA}..HEAD" >> "$GITHUB_OUTPUT"
+          else
+            echo "prev_sha=" >> "$GITHUB_OUTPUT"
+            echo "range=" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Erzeuge den Release-Body:
+      # 1) Fester Text exakt wie gewünscht
+      # 2) Leerzeile
+      # 3) Liste aller Commit-Messages seit letztem Stable-Build
+      - name: Build release notes
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo "Aktuelle Version des RISE Handbuches, inklusive der aktuellen Anederungen."
+            echo
+            if [ -n "${{ steps.range.outputs.range }}" ]; then
+              echo "### Commits seit letztem Stable-Build"
+              # Alle Commits im Bereich; ein Eintrag je Commit (Subject + Kurz-Hash)
+              git log ${{ steps.range.outputs.range }} --pretty=format:"- %s (%h)"
+            else
+              echo "_Erster Stable-Release; keine vorherigen Commits zum Vergleichen._"
+            fi
+          } > RELEASE_BODY.md
 
       # Release mit festem Tag "stable" erstellen/aktualisieren und PDF anhängen
       - name: Publish Release (stable)
         uses: ncipollo/release-action@v1
         with:
           tag: stable
-          name: Stable build
-          body: "Automatisch generiertes PDF aus main branch."
-          allowUpdates: true           # Release mit gleichem Tag aktualisieren
-          replacesArtifacts: true      # vorhandene Assets ersetzen
+          name: "RISE Handbuch - Stable"
+          bodyFile: "RELEASE_BODY.md"
+          allowUpdates: true
+          replacesArtifacts: true
           artifacts: "RISE-Handbuch.pdf"
           token: ${{ secrets.GITHUB_TOKEN }}
+
