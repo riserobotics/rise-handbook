@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write   # notwendig, um Releases/Tags zu schreiben
+  contents: write
 
 jobs:
   build:
@@ -16,7 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # volle Historie für git log / Tags
+          fetch-depth: 0
 
       - name: Compile LaTeX
         uses: xu-cheng/latex-action@4.0.0
@@ -27,7 +27,7 @@ jobs:
       - name: Rename PDF
         run: mv main.pdf "RISE-Handbuch.pdf"
 
-      # Ermittele den Commit-Bereich seit dem letzten Stable-Release (Tag "stable")
+      # Commit-Range seit letztem stable-Tag ermitteln
       - name: Determine commit range since last stable release
         id: range
         shell: bash
@@ -43,10 +43,7 @@ jobs:
             echo "range=" >> "$GITHUB_OUTPUT"
           fi
 
-      # Erzeuge den Release-Body:
-      # 1) Fester Text exakt wie gewünscht
-      # 2) Leerzeile
-      # 3) Liste aller Commit-Messages seit letztem Stable-Build
+      # Release-Text bauen: fester Text + Leerzeile + Commits seit letztem Stable
       - name: Build release notes
         shell: bash
         run: |
@@ -56,14 +53,13 @@ jobs:
             echo
             if [ -n "${{ steps.range.outputs.range }}" ]; then
               echo "### Commits seit letztem Stable-Build"
-              # Alle Commits im Bereich; ein Eintrag je Commit (Subject + Kurz-Hash)
               git log ${{ steps.range.outputs.range }} --pretty=format:"- %s (%h)"
             else
               echo "_Erster Stable-Release; keine vorherigen Commits zum Vergleichen._"
             fi
           } > RELEASE_BODY.md
 
-      # Release mit festem Tag "stable" erstellen/aktualisieren und PDF anhängen
+      # 1) STABILES Release aktualisieren (konstanter Link)
       - name: Publish Release (stable)
         uses: ncipollo/release-action@v1
         with:
@@ -75,3 +71,14 @@ jobs:
           artifacts: "RISE-Handbuch.pdf"
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      # 2) HISTORISCHES Release für diesen Build anlegen (dauerhafte Archivierung)
+      - name: Publish Historical Release (build run)
+        uses: ncipollo/release-action@v1
+        with:
+          tag: "build-${{ github.run_number }}"
+          name: "RISE Handbuch - Build ${{ github.run_number }}"
+          bodyFile: "RELEASE_BODY.md"
+          allowUpdates: true           # falls derselbe Run erneut läuft
+          replacesArtifacts: true
+          artifacts: "RISE-Handbuch.pdf"
+          token: ${{ secrets.GITHUB_TOKEN }}
