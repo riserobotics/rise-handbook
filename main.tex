@@ -7,6 +7,7 @@
 \usepackage{eso-pic}   % \AddToShipoutPictureBG
 \usepackage{ifthen}    % \ifthenelse
 \usepackage{setspace}  % \setstretch
+\usepackage{etoolbox}  % <— hinzugefügt: für \ifdef, \ifdefempty etc.
 
 % Fallbacks
 \newcommand{\latofont}{}
@@ -16,11 +17,14 @@
 \newcommand{\GetTitle}{RISE Handbuch}
 \newcommand{\GetSubtitle}{Ein Leitfaden und Richtlinie für die technischen und nicht-technischen RISE Module}
 \newcommand{\GetFirstAuthor}{Die RISE Tutor*innen}
+\providecommand{\GetSecondAuthor}{} % defensiv: falls in cover.tex abgefragt
+\providecommand{\GetThirdAuthor}{}  % defensiv: falls in cover.tex abgefragt
 \newcommand{\GetSchool}{}
 \newcommand{\GetDepartment}{}
 \newcommand{\GetDegree}{}
 \newcommand{\GetDate}{Berlin, August 2025}
 \newcommand{\GetDocumentVersion}{Entwurf v0.1}
+\newcommand{\GetCourse}{}           % <— hinzugefügt: leer definieren, damit \printfield sicher ist
 
 % Optionen
 \newcommand{\CoverOption}{classic}   % classic | modern
