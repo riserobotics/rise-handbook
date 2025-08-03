@@ -1,14 +1,34 @@
-\documentclass{article}
-\usepackage{graphicx} % Required for inserting images
+\documentclass[a4paper,11pt]{article}
 
-\title{RISE Template}
-\author{post }
-\date{August 2025}
+% Pakete
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{eso-pic}   % \AddToShipoutPictureBG
+\usepackage{ifthen}    % \ifthenelse
+\usepackage{setspace}  % \setstretch
+
+% Fallbacks
+\newcommand{\latofont}{}
+\newcommand{\MediaOptionLogicBlank}{}
+
+% Metadaten
+\newcommand{\GetTitle}{RISE Handbuch}
+\newcommand{\GetSubtitle}{Ein Leitfaden und Richtlinie für die technischen und nicht-technischen RISE Module}
+\newcommand{\GetFirstAuthor}{Die RISE Tutor*innen}
+\newcommand{\GetSchool}{Berlin}
+\newcommand{\GetDepartment}{—}
+\newcommand{\GetDegree}{—}
+\newcommand{\GetDate}{Berlin, August 2025}
+\newcommand{\GetDocumentVersion}{Entwurf v0.1}
+
+% Optionen
+\newcommand{\CoverOption}{classic}   % classic | modern
+\newcommand{\DocStageOption}{final}  % working | final
 
 \begin{document}
 
-\maketitle
-
-\section{Introduction}
+\input{matter/cover}
+\input{chapters/introduction}
 
 \end{document}

@@ -1,0 +1,88 @@
+% matter/cover.tex
+% Titelseite mit EINEM Logo und festem Hintergrund.
+% Voraussetzungen (in main.tex geladen): graphicx, xcolor, geometry, eso-pic, ifthen, setspace
+
+% -- Einstellungen (bei Bedarf hier anpassen) --
+\newcommand{\CoverBackgroundPath}{figures/theme/cover-bg.pdf} % Hintergrund-PDF
+\newcommand{\CoverTextColor}{white}                           % Textfarbe über dem Hintergrund (z. B. white/black)
+
+% -- Hintergrund einbinden (nur Titelseite) --
+\makeatletter
+\AddToShipoutPictureBG*{%
+  \AtPageLowerLeft{%
+    \includegraphics[width=\paperwidth,height=\paperheight]{\CoverBackgroundPath}%
+  }%
+}
+\makeatother
+
+% -- Titelseite --
+\newgeometry{margin=1.98cm, top=2.15cm, bottom=1.47cm}
+\begin{titlepage}
+  \latofont
+  \color{\CoverTextColor}
+
+  \vspace*{\baselineskip}
+
+  % EIN EINZIGES LOGO (keine Auswahl-Logik)
+  \begin{figure}\centering
+    \IfFileExists{figures/theme/rise-logo.pdf}{%
+      \includegraphics[width=0.45\linewidth]{figures/theme/rise-logo.pdf}%
+    }{\textbf{RISE}}%
+  \end{figure}
+
+  \vspace{5.5\baselineskip}
+
+  % Titel
+  \noindent\makebox[\textwidth][l]{%
+    \parbox{\dimexpr\textwidth-4cm\relax}{%
+      \setstretch{1.03}\raggedright\bfseries\fontsize{20}{26}\selectfont \GetTitle
+    }%
+  }
+
+  \vspace{0.8\baselineskip}
+
+  % Untertitel
+  \noindent\makebox[\textwidth][l]{%
+    \parbox{\dimexpr\textwidth-7cm\relax}{%
+      \setstretch{1.03}\raggedright\fontsize{14}{19}\selectfont \GetSubtitle
+    }%
+  }
+
+  \vspace{35pt}
+
+  % Autor*innen
+  {\noindent\bfseries\fontsize{14}{19}\selectfont \GetFirstAuthor}
+
+  \ifdefined\GetSecondAuthor
+    \vspace{8pt}{\noindent\bfseries\fontsize{14}{19}\selectfont \GetSecondAuthor}
+  \fi
+  \ifdefined\GetThirdAuthor
+    \vspace{8pt}{\noindent\bfseries\fontsize{14}{19}\selectfont \GetThirdAuthor}
+  \fi
+
+  \vfill
+
+  % Institution/Felder
+  {\noindent\fontsize{10}{12}\selectfont \GetSchool\par}
+  {\noindent\fontsize{10}{12}\selectfont \GetDepartment\par}
+  {\noindent\fontsize{10}{12}\selectfont \GetDegree\par}
+  \ifdefined\GetCourse
+    {\noindent\fontsize{10}{12}\selectfont \GetCourse\par}
+  \fi
+
+  % Dokumentstatus
+  \ifthenelse{\equal{\DocStageOption}{working}}{%
+    \vspace{62pt}
+    {\noindent\fontsize{10}{12}\selectfont \GetDocumentVersion \\ \textit{\today}}
+    \vspace{62pt}
+  }{%
+    \vspace{125pt}
+  }
+
+  % Datum/Ort
+  {\noindent\fontsize{10}{12}\selectfont \GetDate}
+
+  \vspace{68pt}
+\end{titlepage}
+\restoregeometry
+\MediaOptionLogicBlank
